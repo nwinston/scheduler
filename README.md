@@ -41,7 +41,7 @@ _Assigns jobs over six time intervals_
 ```bash
 $ scheduler.py 4 -requests requestsGY.csv
 ```
-_Assigns jobs over 4 intervals, using the requests found in requestsGY.csv_
+_Assigns jobs over 4 intervals using the requests found in requestsGY.csv_
 
 ## Input Files
 

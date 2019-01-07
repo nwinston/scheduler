@@ -46,18 +46,14 @@ SECOND_CHOICE = -2
 THIRD_CHOICE  = -1
 LAST_CHOICE   = 100
 
-NUM_PERIODS = args.periods
+num_periods = args.periods
 
 with open(JOBS) as f:
 	job_names = [line.strip() for line in f.readlines()]
 
-
-TOTAL_JOBS = NUM_PERIODS * len(job_names)
-
 # Load the list of workers
 with open(WORKERS) as f:
 	precedence_list = [line.strip() for line in f.readlines()]
-
 
 with open(REQUESTS, newline='') as f:
 	reader = csv.reader(f)
@@ -74,7 +70,8 @@ for ndx, req in enumerate(ordered_requests):
 # Assign how many jobs each worker has based on precedence order
 # Workers with lower precedence may have to work more jobs
 pool = defaultdict(int)
-for i in range(TOTAL_JOBS):
+total_jobs = num_periods * len(job_names)
+for i in range(total_jobs):
 	name = ordered_requests[(i % len(ordered_requests))].Name
 	pool[name] += 1
 
@@ -93,7 +90,7 @@ def calc_costs(request, periods_remaining):
 		cost = weights[name]
 
 		# So we don't run into the problem where a worker has more jobs left
-		# than periods remaining, give all workers that have to work during each
+		# than periods remaining, give workers that have to work during each
 		# of the remaining periods a very low cost
 		if jobs_left == periods_remaining:
 			cost = -sys.maxsize - max_weight - weights[name] - 1
@@ -111,12 +108,12 @@ def calc_costs(request, periods_remaining):
 	return costs
 
 schedule = defaultdict(list)
-for period in range(NUM_PERIODS):
+for period in range(num_periods):
 	cost_matrix = []
 	ordered_requests = [r for r in ordered_requests if pool[r.Name] > 0]
 
 	for request in ordered_requests:
-		cost_matrix.append(np.array(calc_costs(request, NUM_PERIODS - period)))
+		cost_matrix.append(np.array(calc_costs(request, num_periods - period)))
 
 	# Use the hungarian algorithm to calculate the optimal worker
 	# for each job at this period
@@ -134,6 +131,6 @@ for period in range(NUM_PERIODS):
 
 with open(OUTPUT, 'w') as csvfile:
 	writer = csv.writer(csvfile)
-	writer.writerow([''] + list(range(1, NUM_PERIODS + 1)))
+	writer.writerow([''] + list(range(1, num_periods + 1)))
 	for job in schedule:
 		writer.writerow([job] + schedule[job])
