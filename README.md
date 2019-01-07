@@ -45,8 +45,7 @@ _Assigns jobs over 4 intervals, using the requests found in requestsGY.csv_
 
 ## Input Files
 
-**Worker List**
--------------
+**Workers**
 
 A list of all workers in descending order of precedence (e.g. someone in higher standing will have higher precedence)
 
@@ -59,8 +58,7 @@ Worker3
 Worker11
 Worker12
 ```
-**Job List**
---------------
+**Jobs**
 
 Listing of jobs to be assigned
 
@@ -75,7 +73,6 @@ Job5
 ```
 
 **Requests**
--------------
 
 CSV file containing workers' job preferences. The following headers are required:
 
