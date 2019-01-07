@@ -22,7 +22,7 @@ optional arguments:
 
 ```
 
-*defaults*
+*default arguments*
 -----------
 -workers = 'workers.txt'
 
@@ -49,6 +49,7 @@ _Assigns jobs over 4 intervals, using the requests found in requestsGY.csv_
 ### Input Files
 
 **Worker List**
+-------------
 
 A list of all workers in descending order of precedence (e.g. someone in higher standing will have higher precedence)
 
@@ -62,6 +63,7 @@ Worker11
 Worker12
 ```
 **Job List**
+--------------
 
 Listing of jobs to be assigned
 
@@ -76,8 +78,9 @@ Job5
 ```
 
 **Requests**
+-------------
 
-CSV file containing workers' job preferences. The CSV file requires the following column headers
+CSV file containing workers' job preferences. The following headers are required:
 
 1. Name - _worker's name_
 2. Choice1 - _first job choice_
@@ -101,17 +104,16 @@ Worker9,JOB3,JOB1,JOB5,JOB2
 Worker10,JOB2,JOB4,JOB1,JOB5
 ```
 
-Theses requests result in the following schedule
+Theses requests result in the following 4-period schedule
+---
 
-
-
-|    |   0   |   1    |   2    |   3    |
+|    |   1   |   2    |   3    |   4    |
 |----|-------|--------|--------|--------|
-|JOB4|Worker7|Worker2 |Worker7 |Worker10|
-|JOB5|Worker5|Worker8 |Worker8 |Worker7 |
+|JOB1|Worker1|Worker1 |Worker3 |Worker5 |
 |JOB2|Worker3|Worker10|Worker10|Worker8 |
 |JOB3|Worker2|Worker9 |Worker9 |Worker9 |
-|JOB1|Worker1|Worker1 |Worker3 |Worker5 |
+|JOB4|Worker7|Worker2 |Worker7 |Worker10|
+|JOB5|Worker5|Worker8 |Worker8 |Worker7 |
 
 
 
