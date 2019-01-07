@@ -43,7 +43,7 @@ $ scheduler.py 4 -requests requestsGY.csv
 ```
 _Assigns jobs over 4 intervals, using the requests found in requestsGY.csv_
 
-### Input Files
+## Input Files
 
 **Worker List**
 -------------
@@ -85,7 +85,7 @@ CSV file containing workers' job preferences. The following headers are required
 4. Choice3 - _third job choice_
 5. ChoiceLast - _absolutely last job choice_
 
-**Note:** The names in requests.csv **must** be a subset of those in the _worker list_, and the choices must be a subset of those in the _job list_
+**Note:** The names in requests.csv \***must**\* be a subset of those in the _worker list_, and the choices must be a subset of those in the _job list_
 
 _sample requests.csv_
 
@@ -101,8 +101,8 @@ Worker9,JOB3,JOB1,JOB5,JOB2
 Worker10,JOB2,JOB4,JOB1,JOB5
 ```
 
-Theses requests result in the following 4-period schedule
----
+Theses requests result in the following 4-period schedule:
+
 
 |    |   1   |   2    |   3    |   4    |
 |----|-------|--------|--------|--------|
