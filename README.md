@@ -65,11 +65,11 @@ Listing of jobs to be assigned
 _sample joblist.txt_
 
 ```
-Job1
-Job2
-Job3
-Job4
-Job5
+JOB1
+JOB2
+JOB3
+JOB4
+JOB5
 ```
 
 **Requests**
@@ -95,7 +95,7 @@ _sample requests.csv_
 |Worker5 |JOB1   |JOB4   |JOB3   |JOB2      |
 |Worker7 |JOB4   |JOB2   |JOB3   |JOB1      |
 |Worker8 |JOB2   |JOB4   |JOB1   |JOB5      |
-|Worker9 |Job3   |JOB1   |JOB5   |JOB2      |
+|Worker9 |JOB3   |JOB1   |JOB5   |JOB2      |
 |Worker10|JOB2   |JOB4   |JOB1   |JOB5      |
 
 
