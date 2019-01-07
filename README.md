@@ -86,17 +86,18 @@ CSV file containing workers' job preferences. The following headers are required
 
 _sample requests.csv_
 
-```
-Name,Choice1,Choice2,Choice3,ChoiceLast
-Worker1,JOB1,JOB2,JOB3,JOB5
-Worker2,JOB4,JOB3,JOB1,JOB5
-Worker3,JOB2,JOB5,JOB3,JOB1
-Worker5,JOB1,JOB4,JOB3,JOB2
-Worker7,JOB4,JOB2,JOB3,JOB1
-Worker8,JOB2,JOB4,JOB1,JOB5
-Worker9,JOB3,JOB1,JOB5,JOB2
-Worker10,JOB2,JOB4,JOB1,JOB5
-```
+
+|Name    |Choice1|Choice2|Choice3|ChoiceLast|
+|--------|-------|-------|-------|----------|
+|Worker1 |JOB1   |JOB2   |JOB3   |JOB5      |
+|Worker2 |JOB4   |JOB3   |JOB1   |JOB5      |
+|Worker3 |JOB2   |JOB5   |JOB3   |JOB1      |
+|Worker5 |JOB1   |JOB4   |JOB3   |JOB2      |
+|Worker7 |JOB4   |JOB2   |JOB3   |JOB1      |
+|Worker8 |JOB2   |JOB4   |JOB1   |JOB5      |
+|Worker9 |Job3   |JOB1   |JOB5   |JOB2      |
+|Worker10|JOB2   |JOB4   |JOB1   |JOB5      |
+
 
 Theses requests result in the following 4-period schedule:
 
