@@ -104,12 +104,13 @@ Worker10,JOB2,JOB4,JOB1,JOB5
 Theses requests result in the following schedule
 
 ```
-    |   0   |   1    |   2    |   3    
-JOB4|Worker7|Worker2 |Worker7 |Worker10
-JOB5|Worker5|Worker8 |Worker8 |Worker7
-JOB2|Worker3|Worker10|Worker10|Worker8
-JOB3|Worker2|Worker9 |Worker9 |Worker9
-JOB1|Worker1|Worker1 |Worker3 |Worker5
+|    |   0   |   1    |   2    |   3    |
+|----|-------|--------|--------|--------|
+|JOB4|Worker7|Worker2 |Worker7 |Worker10|
+|JOB5|Worker5|Worker8 |Worker8 |Worker7 |
+|JOB2|Worker3|Worker10|Worker10|Worker8 |
+|JOB3|Worker2|Worker9 |Worker9 |Worker9 |
+|JOB1|Worker1|Worker1 |Worker3 |Worker5 |
 ```
 
 
