@@ -8,10 +8,10 @@ Commad Line Arguments
 ```
 usage: scheduler.py [-h] [-workers [WORKERS]] [-jobs [JOBS]]
                     [-requests [REQUESTS]] [-output [OUTPUT]]
-                    intervals
+                    periods
 
 positional arguments:
-  intervals             number of time periods being scheduled
+  periods               number of time periods being scheduled
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -24,13 +24,10 @@ optional arguments:
 
 *default arguments*
 -----------
--workers = 'workers.txt'
-
--jobs = 'jobs.txt'
-
--requests = 'requests.csv'
-
--output = 'schedule.csv'
+workers = 'workers.txt'  
+jobs = 'jobs.txt'  
+requests = 'requests.csv'  
+output = 'schedule.csv'  
 
 
 Example Usage
