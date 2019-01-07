@@ -4,3 +4,4 @@ workers.txt
 joblist.txt
 requests.csv
 .DS_Store
+schedule.csv
