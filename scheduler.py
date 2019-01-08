@@ -8,7 +8,7 @@ import operator
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('periods', type=int, help='number of time periods being scheduled')
+parser.add_argument('periods', type=int, nargs='?', default=6, help='number of time periods being scheduled')
 parser.add_argument('-workers', type=str, nargs='?',
 	default='workers.txt', help='list of workers in order of precedence')
 parser.add_argument('-jobs', type=str, nargs='?',
@@ -40,10 +40,10 @@ REQUESTS = args.requests
 OUTPUT = args.output
 
 # Weights to be used when calculating the cost matrix
-PRECEDENCE_WEIGHT_INCREMENT = -5
+PRECEDENCE_WEIGHT_INCREMENT = -12
 FIRST_CHOICE  = -6
-SECOND_CHOICE = -2
-THIRD_CHOICE  = -1
+SECOND_CHOICE = -4
+THIRD_CHOICE  = -3
 LAST_CHOICE   = 100
 
 num_periods = args.periods
