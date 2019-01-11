@@ -40,97 +40,117 @@ REQUESTS = args.requests
 OUTPUT = args.output
 
 # Weights to be used when calculating the cost matrix
-PRECEDENCE_WEIGHT_INCREMENT = -12
-FIRST_CHOICE  = -6
-SECOND_CHOICE = -4
-THIRD_CHOICE  = -3
-LAST_CHOICE   = 100
+PRECEDENCE_WEIGHT = 1
+FIRST_CHOICE  = 1
+SECOND_CHOICE = 3
+THIRD_CHOICE  = 5
+NO_PREF		  = 6
+LAST_CHOICE   = 8
 
 num_periods = args.periods
 
-with open(JOBS) as f:
-	job_names = [line.strip() for line in f.readlines()]
+def load_to_list(file):
+	with open(file) as f:
+		return [line.strip() for line in f.readlines()]
 
-# Load the list of workers
-with open(WORKERS) as f:
-	precedence_list = [line.strip() for line in f.readlines()]
 
-with open(REQUESTS, newline='') as f:
-	reader = csv.reader(f)
-	data = namedtuple('Request', next(reader))
-	job_requests = [row for row in map(data._make, reader)]
+class Scheduler:
+	def __init__(self, periods, workers, jobs, requests):
+		self.periods = periods
+		self.workers = workers
+		self.jobs = jobs
+		self.requests = requests
+		self.schedule = defaultdict(list)
 
-# Sort the request list in order of precedence
-ordered_requests = sorted(job_requests, key=lambda req: (len(precedence_list) - precedence_list.index(req.Name)))
+	def _sort_requests(self):
+		sort_by_precedence = lambda req: self.workers.index(req.Name)
+		self.requests = sorted(requests, reverse=True, key=sort_by_precedence)
 
-weights = {}
-for ndx, req in enumerate(ordered_requests):
-	weights[req.Name] = PRECEDENCE_WEIGHT_INCREMENT * ndx
+	def _create_pool(self):
+		total_jobs = self.periods * len(self.jobs)
 
-# Assign how many jobs each worker has based on precedence order
-# Workers with lower precedence may have to work more jobs
-pool = defaultdict(int)
-total_jobs = num_periods * len(job_names)
-for i in range(total_jobs):
-	name = ordered_requests[(i % len(ordered_requests))].Name
-	pool[name] += 1
+		pool = defaultdict(int)
+		while total_jobs > 0:
+			ndx = total_jobs % len(self.requests)
+			pool[self.requests[ndx].Name] += 1
+			total_jobs -= 1
+		return pool
 
-max_weight = PRECEDENCE_WEIGHT_INCREMENT * len(ordered_requests)
+	def calc_costs(self, request, initial_cost):
+		'''
+		Calculates a row in the cost matrix based on the given job requests
+		and worker's precedence
+		'''
+		name = request.Name
 
-def calc_costs(request, periods_remaining):
-	'''
-	Calculates a row in the cost matrix based on the given job requests
-	and worker's precedence
-	'''
-	name = request.Name
-	jobs_left = pool[name]
+		costs = []
+		for job in self.jobs:
+			cost = initial_cost
+			if job == request.Choice1:
+				cost += FIRST_CHOICE
+			elif job == request.Choice2:
+				cost += SECOND_CHOICE
+			elif job == request.Choice3:
+				cost += THIRD_CHOICE
+			elif job == request.ChoiceLast:
+				cost += LAST_CHOICE
+			else:
+				cost += NO_PREF
 
-	costs = []
-	for job in job_names:
-		cost = weights[name]
+			costs.append(cost)
 
-		# So we don't run into the problem where a worker has more jobs left
-		# than periods remaining, give workers that have to work during each
-		# of the remaining periods a very low cost
-		if jobs_left == periods_remaining:
-			cost = -sys.maxsize - max_weight - weights[name] - 1
+		return costs
 
-		if job == request.Choice1:
-			cost += FIRST_CHOICE
-		if job == request.Choice2:
-			cost += SECOND_CHOICE
-		if job == request.Choice3:
-			cost += THIRD_CHOICE
-		if job == request.ChoiceLast:
-			cost += LAST_CHOICE
-		costs.append(cost)
 
-	return costs
+	def assign_schedule(self):
+		'''
+		'''	
+		self.schedule.clear()
+		self._sort_requests()
+		pool = self._create_pool()
 
-schedule = defaultdict(list)
-for period in range(num_periods):
-	cost_matrix = []
-	ordered_requests = [r for r in ordered_requests if pool[r.Name] > 0]
+		periods_left = self.periods
+		while periods_left > 0:
+			cost_matrix = []
+			self.requests = [r for r in self.requests if pool[r.Name] > 0]
 
-	for request in ordered_requests:
-		cost_matrix.append(np.array(calc_costs(request, num_periods - period)))
+			for ndx, request in enumerate(requests):
+				weight = PRECEDENCE_WEIGHT * ndx
+				costs = self.calc_costs(request, weight)
+				cost_matrix.append(np.array(costs))
 
-	# Use the hungarian algorithm to calculate the optimal worker
-	# for each job at this period
-	row_ind, col_ind = linear_sum_assignment(cost_matrix)
+			# Use the hungarian algorithm to calculate the optimal worker
+			# for each job at this period
+			row_ind, col_ind = linear_sum_assignment(cost_matrix)
+			size = len(row_ind)
 
-	for i in range(len(row_ind)):
-		worker_ind = row_ind[i]
-		job_ind = col_ind[i]
+			workers = [self.requests[i].Name for i in row_ind]
+			jobs = [self.jobs[i] for i in col_ind]
 
-		worker = ordered_requests[worker_ind].Name
-		job = job_names[job_ind]
+			for w,j in zip(workers, jobs):
+				pool[w] -= 1
+				self.schedule[j].insert(0, w)
 
-		pool[worker] -= 1
-		schedule[job].append(worker)
+			periods_left -= 1
 
-with open(OUTPUT, 'w') as csvfile:
-	writer = csv.writer(csvfile)
-	writer.writerow([''] + list(range(1, num_periods + 1)))
-	for job in schedule:
-		writer.writerow([job] + schedule[job])
+
+	def to_csv(self, dest):
+		with open(dest, 'w') as csvfile:
+			writer = csv.writer(csvfile)
+			writer.writerow([''] + list(range(1, self.periods + 1)))
+			for job in self.schedule:
+				writer.writerow([job] + self.schedule[job])
+
+
+if __name__ == '__main__':
+	workers = load_to_list(args.workers)
+	jobs = load_to_list(args.jobs)
+
+	with open(args.requests) as f:
+		reader = csv.reader(f)
+		data = namedtuple('Request', next(reader))
+		requests = [row for row in map(data._make, reader)]
+
+	s = Scheduler(args.periods, workers, jobs, requests)
+	s.assign_schedule()
+	s.to_csv(args.output)
