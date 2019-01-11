@@ -20,11 +20,11 @@ args = parser.parse_args()
 
 # Weights to be used when calculating the cost matrix
 PRECEDENCE_WEIGHT = -5
-FIRST_CHOICE  = -3
-SECOND_CHOICE = -2
-THIRD_CHOICE  = -1
-NO_PREF       = 0
-LAST_CHOICE   = 20
+FIRST_CHOICE      = -3
+SECOND_CHOICE     = -2
+THIRD_CHOICE      = -1
+NO_PREF           = 0
+LAST_CHOICE       = 20
 
 def load_to_list(file):
     with open(file) as f:
