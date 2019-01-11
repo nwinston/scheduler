@@ -4,7 +4,6 @@ import sys
 from collections import namedtuple, defaultdict
 from scipy.optimize import linear_sum_assignment
 import numpy as np
-import operator
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -19,35 +18,13 @@ parser.add_argument('-output', type=str, nargs='?',
 	default='schedule.csv', help='schedule output file')
 args = parser.parse_args()
 
-# Text file containing the list of workers 
-### THIS LIST MUST BE ORDERED BY PRECEDENCE ###
-WORKERS = args.workers
-
-# Text file with the list of jobs
-JOBS = args.jobs
-
-'''
-CSV file with job requests from workers
-Required column names:
-Name - name of worker
-Job1 - first job choice
-Job2 - second job choice
-Job3 - third job choice
-JobLast - absolutely last job choice
-'''
-REQUESTS = args.requests
-
-OUTPUT = args.output
-
 # Weights to be used when calculating the cost matrix
-PRECEDENCE_WEIGHT = 1
-FIRST_CHOICE  = 1
-SECOND_CHOICE = 3
-THIRD_CHOICE  = 5
-NO_PREF		  = 6
-LAST_CHOICE   = 8
-
-num_periods = args.periods
+PRECEDENCE_WEIGHT = -5
+FIRST_CHOICE  = -3
+SECOND_CHOICE = -2
+THIRD_CHOICE  = -1
+NO_PREF 	  = 0
+LAST_CHOICE   = 20
 
 def load_to_list(file):
 	with open(file) as f:
@@ -56,6 +33,13 @@ def load_to_list(file):
 
 class Scheduler:
 	def __init__(self, periods, workers, jobs, requests):
+		'''
+		Args:
+			- number of periods to schedule
+			- list of workers in order of precedence
+			- list of jobs
+			- list of worker requests
+		'''
 		self.periods = periods
 		self.workers = workers
 		self.jobs = jobs
@@ -63,26 +47,31 @@ class Scheduler:
 		self.schedule = defaultdict(list)
 
 	def _sort_requests(self):
-		sort_by_precedence = lambda req: self.workers.index(req.Name)
-		self.requests = sorted(requests, reverse=True, key=sort_by_precedence)
+		'''
+		Sorts self.requests in order of precedence
+		'''
+		self.requests = sorted(requests,
+							   reverse=True,
+				 			   key=lambda req: self.workers.index(req.Name))
 
-	def _create_pool(self):
+	def _job_counts(self):
+		'''
+		Assigns number of jobs each worker has to work
+		'''
 		total_jobs = self.periods * len(self.jobs)
 
 		pool = defaultdict(int)
-		while total_jobs > 0:
-			ndx = total_jobs % len(self.requests)
+		for i in range(total_jobs):
+			ndx = i % len(self.requests)
 			pool[self.requests[ndx].Name] += 1
-			total_jobs -= 1
 		return pool
 
 	def calc_costs(self, request, initial_cost):
 		'''
-		Calculates a row in the cost matrix based on the given job requests
-		and worker's precedence
+		Args:
+			- Worker's job requests
+			- base cost
 		'''
-		name = request.Name
-
 		costs = []
 		for job in self.jobs:
 			cost = initial_cost
@@ -98,26 +87,32 @@ class Scheduler:
 				cost += NO_PREF
 
 			costs.append(cost)
-
-		return costs
-
+		return np.array(costs)
 
 	def assign_schedule(self):
-		'''
-		'''	
 		self.schedule.clear()
 		self._sort_requests()
-		pool = self._create_pool()
+		pool = self._job_counts()
 
-		periods_left = self.periods
-		while periods_left > 0:
+		min_cost = PRECEDENCE_WEIGHT * len(self.requests)
+
+		for period in range(self.periods):
 			cost_matrix = []
-			self.requests = [r for r in self.requests if pool[r.Name] > 0]
+			periods_left = self.periods - period
 
-			for ndx, request in enumerate(requests):
-				weight = PRECEDENCE_WEIGHT * ndx
-				costs = self.calc_costs(request, weight)
-				cost_matrix.append(np.array(costs))
+			for ndx, request in enumerate(self.requests):
+				initial_cost = PRECEDENCE_WEIGHT * ndx
+				shifts_left = pool[request.Name]
+
+				# If a worker has as many shifts left as periods,
+				# they get highest precedence 
+				if shifts_left == periods_left:
+					initial_cost += min_cost
+				if shifts_left == 0:
+					initial_cost = sys.maxsize
+
+				costs = self.calc_costs(request, initial_cost)
+				cost_matrix.append(costs)
 
 			# Use the hungarian algorithm to calculate the optimal worker
 			# for each job at this period
@@ -129,10 +124,7 @@ class Scheduler:
 
 			for w,j in zip(workers, jobs):
 				pool[w] -= 1
-				self.schedule[j].insert(0, w)
-
-			periods_left -= 1
-
+				self.schedule[j].append(w)
 
 	def to_csv(self, dest):
 		with open(dest, 'w') as csvfile:
