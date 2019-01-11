@@ -35,10 +35,10 @@ class Scheduler:
 	def __init__(self, periods, workers, jobs, requests):
 		'''
 		Args:
-			- number of periods to schedule
-			- list of workers in order of precedence
-			- list of jobs
-			- list of worker requests
+			periods: number of periods to schedule
+			workers: list of workers in order of precedence
+			jobs: list of jobs
+			requests: list of worker requests
 		'''
 		self.periods = periods
 		self.workers = workers
@@ -51,8 +51,8 @@ class Scheduler:
 		Sorts self.requests in order of precedence
 		'''
 		self.requests = sorted(requests,
-							   reverse=True,
-				 			   key=lambda req: self.workers.index(req.Name))
+								reverse=True,
+				 				key=lambda req: self.workers.index(req.Name))
 
 	def _job_counts(self):
 		'''
