@@ -23,7 +23,7 @@ PRECEDENCE_WEIGHT = -5
 FIRST_CHOICE      = -3
 SECOND_CHOICE     = -2
 THIRD_CHOICE      = -1
-NO_PREF           = 0
+NO_PREF           =  0
 LAST_CHOICE       = 20
 
 
@@ -41,17 +41,14 @@ def sort_requests(requests, workers):
                   key=lambda req: workers.index(req.Name))
 
 
-def job_counts(periods, requests, jobs):
+def job_counts(requests, total_jobs):
     '''
     Assigns number of jobs each worker has to work
 
     Args:
-        - number of periods
-        - list of ordered worker requests
-        - list of job names
+        - ordered list of worker requests
+        - number of jobs to be worked
     '''
-    total_jobs = periods * len(jobs)
-
     pool = defaultdict(int)
     for i in range(total_jobs):
         ndx = i % len(requests)
@@ -91,7 +88,7 @@ def assign_schedule(periods, requests, jobs):
         - list of requests
         - list of job names
     '''
-    counts = job_counts(periods, requests, jobs)
+    counts = job_counts(requests, len(jobs) * periods)
     min_cost = PRECEDENCE_WEIGHT * len(requests)
 
     schedule = defaultdict(list)
@@ -145,6 +142,5 @@ if __name__ == '__main__':
         requests = [row for row in map(data._make, reader)]
 
     requests = sort_requests(requests, workers)
-
     schedule = assign_schedule(args.periods, requests, jobs)
     to_csv(schedule, args.output)
